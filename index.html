@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean School Pro</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:#001f54;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    color:white;
+}
+
+.phone{
+    width:360px;
+    height:740px;
+    background:#002b6b;
+    border-radius:25px;
+    padding:20px;
+    box-sizing:border-box;
+    overflow:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    margin-top:10px;
+    border:none;
+    border-radius:12px;
+    background:yellow;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.card{
+    background:white;
+    color:black;
+    padding:15px;
+    border-radius:15px;
+    margin-top:15px;
+}
+
+textarea, select{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:10px;
+}
+
+.task{
+    background:#f2f2f2;
+    padding:10px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+.small-btn{
+    background:limegreen;
+    color:white;
+    margin-top:8px;
+}
+
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+
+<div class="phone">
+
+<h1>Clean School Pro</h1>
+
+<!-- HOME -->
+<div id="home">
+    <button onclick="openTeacher()">Teacher</button>
+    <button onclick="openCleaner()">Cleaner</button>
+</div>
+
+<!-- TEACHER -->
+<div id="teacher" class="hidden">
+    <div class="card">
+        <h3>Report Area</h3>
+
+        <select id="location">
+            <option value="">Select Location</option>
+
+            <option>Classroom</option>
+            <option>Laboratory</option>
+            <option>Computer Lab</option>
+
+            <option>Toilet (Block A)</option>
+            <option>Toilet (Block B)</option>
+            <option>Toilet (Block C)</option>
+
+            <option>Canteen</option>
+            <option>Hall / Dewan</option>
+
+            <option>Library</option>
+            <option>Corridor (Level 1)</option>
+            <option>Corridor (Level 2)</option>
+
+            <option>Staircase</option>
+            <option>School Field</option>
+            <option>Parking Area</option>
+
+            <option>Surau</option>
+            <option>Teachers Room</option>
+
+            <option>Gate / Entrance</option>
+        </select>
+
+        <textarea id="problem" placeholder="Describe problem..."></textarea>
+
+        <button onclick="sendReport()">Report</button>
+        <button onclick="backHome()">Back</button>
+    </div>
+</div>
+
+<!-- CLEANER -->
+<div id="cleaner" class="hidden">
+    <div class="card">
+        <h3>Tasks List</h3>
+        <div id="taskList"></div>
+        <button onclick="loadTasks()">Refresh</button>
+        <button onclick="backHome()">Back</button>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+function openTeacher(){
+    homeHide();
+    document.getElementById("teacher").classList.remove("hidden");
+}
+
+function openCleaner(){
+    homeHide();
+    document.getElementById("cleaner").classList.remove("hidden");
+    loadTasks();
+}
+
+function homeHide(){
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("teacher").classList.add("hidden");
+    document.getElementById("cleaner").classList.add("hidden");
+}
+
+function backHome(){
+    document.getElementById("home").classList.remove("hidden");
+    document.getElementById("teacher").classList.add("hidden");
+    document.getElementById("cleaner").classList.add("hidden");
+}
+
+function sendReport(){
+
+    let loc = document.getElementById("location").value;
+    let prob = document.getElementById("problem").value;
+
+    if(loc=="" || prob==""){
+        alert("Fill all fields");
+        return;
+    }
+
+    let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+
+    tasks.push({
+        location: loc,
+        problem: prob
+    });
+
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    document.getElementById("location").value="";
+    document.getElementById("problem").value="";
+
+    alert("Report sent successfully!");
+}
+
+function loadTasks(){
+
+    let list = document.getElementById("taskList");
+    list.innerHTML="";
+
+    let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+
+    if(tasks.length === 0){
+        list.innerHTML="<p>No tasks</p>";
+        return;
+    }
+
+    tasks.forEach((t, i)=>{
+
+        let div = document.createElement("div");
+        div.className="task";
+
+        div.innerHTML=`
+            <b>${t.location}</b><br>
+            ${t.problem}
+            <button class="small-btn" onclick="doneTask(${i})">
+                Done
+            </button>
+        `;
+
+        list.appendChild(div);
+    });
+}
+
+function doneTask(index){
+
+    let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+
+    tasks.splice(index,1);
+
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    loadTasks();
+}
+
+</script>
+
+</body>
+</html>
